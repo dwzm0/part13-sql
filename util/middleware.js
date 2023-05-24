@@ -1,3 +1,7 @@
+const { User } = require('../models')
+const jwt = require('jsonwebtoken')
+const { SECRET } = require('../util/config')
+
 const errorHandler = (error, req, res, next) => {
     if (error.name==='SequelizeValidationError') {
       return res.status(400).send({error: error.message})
@@ -7,5 +11,27 @@ const errorHandler = (error, req, res, next) => {
     next(error)
 }
 
+const tokenExtractor = (req, res, next) => {
+  const authorization = req.get('authorization')
+  if (authorization && authorization.toLowerCase().startsWith('bearer ')) {
+    try {
+      req.decodedToken = jwt.verify(authorization.substring(7), SECRET)
+    } catch{
+      return res.status(401).json({ error: 'token invalid' })
+    }
+  }  else {
+    return res.status(401).json({ error: 'token missing' })
+  }
+  next()
+}
 
-module.exports = { errorHandler }
+const userFinder = async (req, res, next) => {
+  req.user = await User.findOne({where: {
+      username: req.params.username
+  }
+  })
+  next()
+}
+
+
+module.exports = { errorHandler, tokenExtractor, userFinder }
