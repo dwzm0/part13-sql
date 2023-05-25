@@ -8,7 +8,7 @@ Blog.init({
     id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
-        autoIncrement: true
+        autoIncrement: true 
         },
     author: {
         type: DataTypes.TEXT,
@@ -24,11 +24,18 @@ Blog.init({
     likes: {
         type: DataTypes.INTEGER,
         defaultValue: 0
+    },
+    year: {
+        type: DataTypes.DATE,
+        validate:{
+            isAfter: "1991-01-01",
+            isBefore: String(new Date())
+        }
     }    
   }, {
     sequelize,
     underscored: true,
-    timestamps: false,
+    timestamps: true,
     modelName: 'blog'
 })
 

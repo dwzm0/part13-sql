@@ -4,6 +4,7 @@ const { SECRET } = require('../util/config')
 
 const errorHandler = (error, req, res, next) => {
     if (error.name==='SequelizeValidationError') {
+      if (error.message.includes("year")) return res.status(400).send({error: 'The year is incorrect'}) 
       return res.status(400).send({error: error.message})
     } else if (error.name==="SequelizeDatabaseError") {
       return res.status(400).send(`Error: ${error.message}`)
