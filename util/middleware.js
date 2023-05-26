@@ -12,7 +12,7 @@ const errorHandler = (error, req, res, next) => {
     next(error)
 }
 
-const tokenExtractor = (req, res, next) => {
+const tokenExtractor = async (req, res, next) => {
   const authorization = req.get('authorization')
   if (authorization && authorization.toLowerCase().startsWith('bearer ')) {
     try {
@@ -22,6 +22,10 @@ const tokenExtractor = (req, res, next) => {
     }
   }  else {
     return res.status(401).json({ error: 'token missing' })
+  }
+  const user = await User.findByPk(req.decodedToken.id)
+  if (user.disabled) {
+    return res.status(401).json({ error: 'token expired' })
   }
   next()
 }
